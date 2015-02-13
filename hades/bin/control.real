@@ -1,0 +1,95 @@
+#!/bin/bash
+
+THIS_DIR=$(dirname $(readlink -f $0))
+source $THIS_DIR/../conf.sh
+
+### setup environment
+mkdir -p $WORK_DIR
+mkdir -p $STATUS_DIR
+mkdir -p $LOG_DIR
+
+mkdir -p /tmp/share/instances
+mkdir -p /tmp/share/logs
+
+[ ! -f $STATUS_DIR/.installed ] && {
+### first install
+    ln -sf $AGENT_DIR/docker/wsh /usr/local/bin/wsh
+    touch -f $STATUS_DIR/.installed
+}
+
+_start()
+{
+    ulimit -c unlimited
+    ulimit -n 102400
+
+    mkdir -p $LOG_DIR
+    cd $AGENT_DIR
+
+    $AGENT_DIR/env_check.sh >/dev/null 2>&1
+    [ $? -ne 0 ] && {
+        echo ">>>>>> environment check failed <<<<<"
+        exit 1
+    }
+
+    python2.6 /letv/hades/agent.py -d
+
+    #supervisorctl -c conf/supervisord.conf status hades |grep RUNNING
+    #[ $? -ne 0 ] && {
+    #    echo ">>>>>> 'hades' not in running status <<<<<"
+    #    exit 1
+    #}
+    #supervisorctl -c conf/supervisord.conf status runtime_check |grep RUNNING
+    #[ $? -ne 0 ] && {
+    #    echo ">>>>>> 'runtime_check' not in running status <<<<<"
+    #    exit 1
+    #}
+}
+
+_stop() 
+{
+    cd $AGENT_DIR
+    pid=$(ps axf |grep "hades/agent.py" |grep -v "grep" |awk '{print $1}')
+    [[ $? -eq 0 && "$pid" != "" ]] && { echo "kill $pid"; kill -9 $pid; }
+    #supervisorctl -c conf/supervisord.conf stop hades         2>/dev/null
+    #supervisorctl -c conf/supervisord.conf stop runtime_check 2>/dev/null
+    #supervisorctl -c conf/supervisord.conf shutdown           2>/dev/null
+} 
+
+start()
+{
+    _stop
+    _start
+    exit 0
+}
+
+stop()
+{
+    _stop
+    exit 0
+}
+
+restart()
+{
+    _stop
+    _start
+    exit 0
+}
+
+case C"$1" in
+    C)
+        echo "Usage: $0 {start|stop|restart}"
+        ;;
+    Cstart)
+        start
+        ;;
+    Crestart)
+        restart
+        ;;
+    Cstop)
+        stop
+        ;;
+    C*)
+        echo "Usage: $0 {start|stop|restart}"
+        ;;
+esac
+

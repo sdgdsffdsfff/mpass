@@ -1,0 +1,11 @@
+set user [lindex $argv 0]
+set ip   [lindex $argv 1]
+set pass [lindex $argv 2]
+set timeout 3
+
+spawn ssh-copy-id -i /root/.ssh/id_rsa.pub  $user@$ip
+expect {
+        "(yes/no)? " { send "yes\r"; exp_continue }
+        "password: " { send "$pass\r"; exp_continue }
+}
+

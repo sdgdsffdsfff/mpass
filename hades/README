@@ -1,0 +1,62 @@
+1. 概述
+模块名称： hades
+部署在所有UI机器上，接受调度的指令，管理container和instance
+
+
+2. 部署
+部署路径： /home/bae/baeng/hades/
+日志路径： /home/bae/logs/baeng/hades/
+  * agent.log   hades框架的日志；首先要关注这个日志。
+  * do.log      具体worker的日志；在出现故障的情况下，查看这个日志
+状态文件路径： /home/bae/run/baeng/hades/status
+
+依赖模块： 
+  * message queue system
+
+部署后配置：
+
+1). 修改配置文件：/home/bae/baeng/hades/conf.sh
+设置 rabbitmq server地址
+设置 fileserver 地址
+设置 MIS server 地址
+设置 container image id（后续会改进为自动获取）
+
+2). 为root账号创建SSH密钥
+以root登陆
+# ssh-kegen
+一路回车
+
+3). 建立与fileserver之间的信任关系
+# ssh-copy-id  -i /root/.ssh/id_rsa.pub  bae@[fileserver IP]
+
+3. 启停方式：
+/home/bae/baeng/hades/bin/control [start|stop|restart]
+
+4. 控制工具
+/home/bae/baeng/hades/hadesctl 
+使用该工具，向消息队列发送消息来控制hades，可用来做测试
+
+5. 消息规范
+与调度之间的消息，遵循规范
+http://wiki.babel.baidu.com/twiki/bin/view/Com/CloudOS/SchedulerMsg
+
+
+6. 杂项
+并发控制：
+hades是多线程架构，由多个worker线程来处理任务；
+对于相同的instance(以instance_name为唯一标识)，同时只有一个任务在执行，其它任务都排队等待。
+对于不同的instance，可以并发执行任务。
+
+持久化：
+hades在运行过程中，将内存状态dump到 /home/bae/baeng/hades/status/ 目录下；
+若重启hades，则重新加载状态信息，可以恢复到重启前的状态。
+
+container管理：
+container管理交给后端的docker来做
+
+instance管理：
+hades专门有一个instance-manager线程来管理instance，它要记录所有在本地创建的instance的信息和状态，可通过 hadesctl instance_list 来查询
+
+健康检查：
+instance-manager线程周期性的检查每个instance所对应的container（处于busy状态）的deadcount，若deadcount >= 3，则通知调度
+

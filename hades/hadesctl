@@ -1,0 +1,5 @@
+#!/bin/bash
+
+THIS_DIR=$(dirname $(readlink -f $0))
+source $THIS_DIR/conf.sh
+$PYTHON_BIN $THIS_DIR/hadesctl.py "$@"

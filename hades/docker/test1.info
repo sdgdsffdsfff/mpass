@@ -1,0 +1,4 @@
+arg_appid=appid_test1
+arg_ports="80"
+arg_imageid=10.160.140.32:5000/scloud:base
+arg_app_location=/home/rstevens/gohome/src/github.com/chenyf/mpass/hades/docker/test1
