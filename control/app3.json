@@ -1,0 +1,11 @@
+{
+    "name" : "app3",
+    "domain" : "app3.scloud.letv.com",
+    "svn" : "null",
+	"type" : "WORKER",
+    "port" : "80",
+    "instance_num" : 0,
+    "imgid" : "10.160.140.32:5000/scloud:nginx",
+	"code_uri" : "file:///letv/mpass/testapp3"
+}
+

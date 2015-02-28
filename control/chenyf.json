@@ -1,0 +1,11 @@
+{
+    "name" : "chenyf",
+    "domain" : "chenyf.scloud.letv.com",
+    "svn" : "http://svn.letv.cn/cloud/chenyf/",
+	"type" : "WEB",
+    "port" : "8080",
+    "instance_num" : 1,
+    "imgid" : "10.160.140.32:5000/scloud:base",
+	"code_uri" : "file:///letv/mpass/testapp3"
+}
+
