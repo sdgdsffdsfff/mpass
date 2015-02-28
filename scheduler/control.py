@@ -96,11 +96,13 @@ class RPC(object):
         self.response = None
         return response
 
-node_list = ["10.154.156.122", "10.154.156.122"]
-#node_list = ["10.135.28.140"]
+#node_list = ["10.154.156.122", "10.154.156.122"]
+node_list = ["10.135.28.140", "10.135.28.141"]
 router_list = ["10.154.28.127"]
 
 g_db = Database()
+
+
 
 def _router_update(router, context):
     rpc = RPC()
@@ -209,6 +211,9 @@ def app_status(argv):
             print val
         print "===================================="
 
+def _node_get():
+    return random.choice(node_list)
+
 def _get_suffix():
     return ''.join(random.sample('abcdefghijklmnopqrstuvwxyz0123456789', 10))
 
@@ -234,7 +239,7 @@ def app_deploy(argv):
         instance_num = cmdinfo["instance_num"]
         new_instances = []
         for n in range(instance_num):
-            node = g_db.nodeGet()
+            node = _node_get()
             suffix = _get_suffix()
             instance = "instance_%s" % suffix
             port = "0"

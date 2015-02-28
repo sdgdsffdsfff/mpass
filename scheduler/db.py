@@ -50,10 +50,6 @@ class Database(object):
         apps = self.db["apps"]
         return apps.get(name, None)
 
-    def nodeGet(self):
-        return "10.154.156.122"
-        #return "10.135.28.140"
-
     def instanceCreate(self, name, instance, node, vip, port):
         instances = self.db["instances"]
         instances[name][instance] = { 
