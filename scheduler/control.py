@@ -102,8 +102,6 @@ router_list = ["10.154.28.127"]
 
 g_db = Database()
 
-
-
 def _router_update(router, context):
     rpc = RPC()
     cmd = {
@@ -263,7 +261,13 @@ def app_deploy(argv):
             if result != 0:
                 print "instance_create %s FAILED" % instance
                 return
-            new_instances.append((instance, response))
+            new_instances.append(
+                {
+                    "instance" : instance,
+                    "node" : node,
+                    "vip"  : response["context"]["container_ip"],
+                    "port" : response["context"]["public_port"]
+                })
 
         old_instances = g_db.instanceGet(appname)
         for key, val in old_instances.items():
@@ -286,9 +290,9 @@ def app_deploy(argv):
 
         addrs = []
         print ">>> update info into DB"
-        for instance, response in new_instances:
-            g_db.instanceCreate(appname, instance, node, response["context"]["container_ip"], response["context"]["public_port"])
-            addrs.append("%s:%s"%(node, response["context"]["public_port"]))
+        for context in new_instances:
+            g_db.instanceCreate(appname, context)
+            addrs.append("%s:%s"%(context["node"], context["port"]))
 
         if appinfo["type"] != "WEB":
             return

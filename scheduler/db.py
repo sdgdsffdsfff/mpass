@@ -50,13 +50,13 @@ class Database(object):
         apps = self.db["apps"]
         return apps.get(name, None)
 
-    def instanceCreate(self, name, instance, node, vip, port):
+    def instanceCreate(self, name, context):
         instances = self.db["instances"]
-        instances[name][instance] = { 
+        instances[name][context["instance"]] = { 
             "status" : "running",
-            "node" : node,
-            "vip" : vip,
-            "port" : port
+            "node" : context["node"],
+            "vip" :  context["vip"],
+            "port" : context["port"]
         }
         self._sync()
         return True
