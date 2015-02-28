@@ -3,14 +3,14 @@
 AGENT_NAME=hades
 PYTHON_BIN=python2.6
 
-export AGENT_DIR=/letv/hades
-export LOG_DIR=/letv/logs/$AGENT_NAME/
-export WORK_DIR=/letv/run/hades/work
-export STATUS_DIR=/letv/run/baeng/status
+export AGENT_DIR=/letv/mpass/$AGENT_NAME
+export LOG_DIR=/letv/logs/mpass/$AGENT_NAME
+export WORK_DIR=/letv/run/mpass/$AGENT_NAME/work
+export STATUS_DIR=/letv/run/mpass/$AGENT_NAME/status
 export DOCKER_DIR=/srv/docker
 
 export LOG_FILE=$LOG_DIR/agent.log
-export LOCK_FILE=/letv/run/hades/hades.lock
+export LOCK_FILE=/letv/run/mpass/$AGENT_NAME/hades.lock
 export LOG_TYPE="file"
 
 export THIS_HOST=10.154.156.122

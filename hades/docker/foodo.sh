@@ -2,7 +2,7 @@
 
 ##set +x
 
-BASE_DIR=/letv/hades
+BASE_DIR=/letv/mpass/hades
 source $BASE_DIR/conf.sh
 
 SHARE_ROOT=/tmp/hades/share

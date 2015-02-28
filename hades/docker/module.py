@@ -12,8 +12,8 @@ from instance_manager  import InstanceManager
 import util
 import global_context
 
-DO_SCRIPT = "/letv/hades/docker/do.sh"
-RUNTIME_STATUS_FILE = "/letv/run/hades/status/runtime.status"
+DO_SCRIPT = os.environ["AGENT_DIR"] + "/docker/do.sh"
+RUNTIME_STATUS_FILE = os.environ["STATUS_DIR"] + "/runtime.status"
 
 def max_instance_count():
     cmd = "%s max_instance_count" % (DO_SCRIPT)
