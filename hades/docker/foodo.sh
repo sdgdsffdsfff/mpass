@@ -47,7 +47,7 @@ function _get_app()
     local proto=${app_uri%://*}
     if [ "$proto" = "file" ]; then
         local app_dir=${app_uri#*://}
-	cp -aR $app_dir/* $target_dir/ >> $logfile 2>&1
+		cp -aR $app_dir/* $target_dir/ >> $logfile 2>&1
         [ $? -ne 0 ] && { return 1; }
     elif [ "$proto" = "http" ]; then
         local now=$(date +%Y%m%d-%H%M%S)
@@ -57,7 +57,22 @@ function _get_app()
         tar xzf $tmpfile -C $targe_dir/ >> $logfile 2>&1
         rm -f $tmpfile
         [ $? -ne 0 ] && { return 3; }
-    else
+	elif [ "$proto" = "rsync" ]; then
+	## rsync://user@server:path
+        local remote_path=${app_uri#*://}
+	    local retry=0
+        while :
+        do
+            log "rsync code from fileserver $file_server ($retry)"
+            rsync -aq --partial --delete -e 'ssh -o "StrictHostKeyChecking=no" ' $remote_path $target_dir/  >>$logfile 2>&1
+            [ $? -eq 0 ] && { break; }
+            retry=$(($retry+1))
+            [ $retry -eq 3 ] && {
+				return 1;
+            }
+            sleep 1
+        done
+	else
         return 10
     fi
     return 0
@@ -81,22 +96,37 @@ function instance_create()
     rm -rf $log_dir/*
  
     local port_maps=""
-    [ "$arg_port" != " " ] && port_maps="-p $arg_port"
+    [ "$arg_port" != "0" ] && port_maps="-p $arg_port"
 
-    _get_app $arg_app_uri $instance_dir $LOGFILE
-    [ $? -ne 0 ] && {
+    _get_app $arg_app_uri $instance_dir $LOGFILE || {
         error_exit 107 "get app code from $arg_app_uri failed";
     }
 
     local hostname="$arg_appid"
+	local runcmd="$CONTAINER_ROOT/app/run.sh"; 
+   	[ -e $instance_dir/app/run.sh ] && { 
+		chmod +x $instance_dir/app/run.sh;
+	} || {
+		runcmd="";
+	}
+	
+	log "docker run \
+        --name $instance_name \
+        -d \
+        -v $instance_dir/app:$CONTAINER_ROOT/app \
+        -v $log_dir:$CONTAINER_ROOT/logs \
+        -h $hostname \
+        $port_maps \
+        $arg_imgid $runcmd"
+
     local container_id=$(docker run \
         --name $instance_name \
         -d \
-        -v $instance_dir:$CONTAINER_ROOT/www/$arg_appid\
-        -v $log_dir:$CONTAINER_ROOT/logs/$arg_appid \
+        -v $instance_dir/app:$CONTAINER_ROOT/app \
+        -v $log_dir:$CONTAINER_ROOT/logs \
         -h $hostname \
         $port_maps \
-        $arg_imgid $CONTAINER_ROOT/www/$arg_appid/run.sh)
+        $arg_imgid $runcmd)
 
     [ $? -ne 0 ] && { 
         rm -rf $instance_dir
@@ -105,8 +135,8 @@ function instance_create()
     }
     log "container_id: ($container_id)"
     [ "$container_id" == "" ] && {
-        rm -rf $instance_dir
-        rm -rf $log_dir
+        #rm -rf $instance_dir
+        #rm -rf $log_dir
         error_exit 102 "invalid container id"
     }
     docker inspect -f '{{.State.Running}}' $container_id |grep true >> $LOGFILE 2>&1
@@ -136,7 +166,7 @@ function instance_create()
     }
 
     local public_port="0"
-    [ "$arg_port" != " " ] && { 
+    [ "$arg_port" != "0" ] && { 
         public_port=$(docker port $container_id $arg_port |awk -F ":" '{print $2}'); 
     }
     echo $container_id $container_ip $public_port

@@ -200,6 +200,8 @@ class HadesModule(object):
 
         if ret == 0:
             logging.info("thread %d: output(%s)" % (tid, stdout))
+            aaa = stdout.split()
+            logging.info(aaa)
             id, ip, public_port = stdout.split()
             instance = {
                 'container_id' : id,
@@ -211,7 +213,7 @@ class HadesModule(object):
             self.im.add(instance_name, instance) 
             reply_msg['context']['result'] = 0
             reply_msg['context']['container_ip'] = ip
-            reply_msg['context']['public_addr'] = "%s:%s" % (os.environ["THIS_HOST"], public_port)
+            reply_msg['context']['public_port'] = "%s" % (public_port)
         else:
             reply_msg['context']['result'] = ret
             reply_msg['context']['info'] = "app install failed"
