@@ -21,8 +21,6 @@ MQ_SERVERS  = os.environ['RABBITMQ_SERVER_LIST']
 MQ_USER     = os.environ['RABBITMQ_USER']
 MQ_PASS     = os.environ['RABBITMQ_PASS']
 
-THIS_AGENT_NAME    = os.environ['THIS_AGENT_NAME']
-
 class RPC(object):
     def __init__(self, rpc_queue=None):
         logging.getLogger('pika').setLevel(logging.CRITICAL)

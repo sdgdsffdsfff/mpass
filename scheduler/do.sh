@@ -2,7 +2,7 @@ function get_code()
 {
 	local app=$1
 	local svnurl=$2
-	workdir="/letv/run/mpass/control/$app"
+	workdir="/letv/run/mpass/scheduler/$app"
 	mkdir -p $workdir
 	cd $workdir
 	rm -rf *
