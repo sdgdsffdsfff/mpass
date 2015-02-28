@@ -5,9 +5,9 @@ AGENT_NAME=router
 
 PYTHON_BIN=python2.6
 
-export AGENT_DIR=/letv/$AGENT_NAME
-export LOG_DIR=/letv/logs/$AGENT_NAME
-export RUN_DIR=/letv/run/$AGENT_NAME
+export AGENT_DIR=/letv/mpass/$AGENT_NAME
+export LOG_DIR=/letv/logs/mpass/$AGENT_NAME
+export RUN_DIR=/letv/run/mpass/$AGENT_NAME
 
 export LOG_FILE=$LOG_DIR/agent.log
 export WORK_DIR=$RUN_DIR/work
