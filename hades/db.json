@@ -1,1 +1,0 @@
-{"instances": {"app1": {"instance_o0erhcuxym": {"status": "running", "nodeip": "10.154.156.122", "vip": "172.17.0.51"}, "instance_6sdy9apjcl": {"status": "running", "nodeip": "10.154.156.122", "vip": "172.17.0.52"}}}, "apps": {"app1": {"svn": "null", "status": 0, "domain": "app1.scloud.letv.com", "port": "80"}}}

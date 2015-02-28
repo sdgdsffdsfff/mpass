@@ -1,9 +1,0 @@
-{
-    "name" : "app1",
-    "domain" : "app1.scloud.letv.com",
-    "svn" : "null",
-    "port" : "80",
-    "instance_num" : 2,
-    "imgid" : "10.160.140.32:5000/scloud:base"
-}
-
