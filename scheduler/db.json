@@ -1,1 +1,1 @@
-{"instances": {"app1": {}}, "apps": {"app1": {"svn": "null", "status": 0, "domain": "app1.scloud.letv.com", "type": "WEB", "port": "80"}}}
+{"instances": {"app1": {}, "chenyf": {"instance_jp8wrkmq1h": {"status": "running", "node": "10.154.156.122", "vip": "172.17.0.119", "port": "49197"}}}, "apps": {"app1": {"svn": "null", "status": 0, "domain": "app1.scloud.letv.com", "type": "WEB", "port": "80"}, "chenyf": {"svn": "http://svn.letv.cn/cloud/chenyf/", "status": 0, "domain": "chenyf.scloud.letv.com", "type": "WEB", "port": "8080"}}}

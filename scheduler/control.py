@@ -224,13 +224,13 @@ def app_deploy(argv):
             return
 
         print ">>> get code from svn"
-        cmd = "/letv/mpass/do.sh get_code %s %s" % (appname, appinfo["svn"])
+        cmd = "%s/do.sh get_code %s %s" % (os.environ["AGENT_DIR"], appname, appinfo["svn"])
         ret, _ = util.run_cmd(cmd, out=False)
         if ret != 0:
             print "get code failed"
             return
 
-        appuri = "rsync://root@10.154.156.122:/letv/run/mpass/control/%s/app" % appname
+        appuri = "rsync://root@10.154.156.122:/letv/run/mpass/scheduler/%s/app" % appname
         instance_num = cmdinfo["instance_num"]
         new_instances = []
         for n in range(instance_num):
