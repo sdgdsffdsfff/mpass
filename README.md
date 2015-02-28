@@ -7,9 +7,8 @@
 * instance:   实例，每个应用由多个实例构成
 * container:  容器，每个实例运行在一个docker容器中
 * node:       节点服务器，分为
-
-   ** container node:  运行container
-   ** router node:     运行router
+1. container node:  运行container
+2. router node:     运行router
 
 ## 组件：
 * scheduler:  中控模块
