@@ -120,7 +120,7 @@ function instance_create()
         $arg_imgid $runcmd"
 
     local container_id=$(docker run \
-        --name $instance_name \
+        --name "$arg_appid:$instance_name" \
         -d \
         -v $instance_dir/app:$CONTAINER_ROOT/app \
         -v $log_dir:$CONTAINER_ROOT/logs \
