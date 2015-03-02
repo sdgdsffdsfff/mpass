@@ -96,7 +96,7 @@ class InstanceManagerThread(threading.Thread):
         while self.running:
             self.im.save_to_disk()
             now = time.time()
-			"""
+            """
             if now - last_check >= 15:
                 r = self.__instances_check()
                 heart_beat_msg['logid'] = '111111111111111' 
@@ -109,7 +109,7 @@ class InstanceManagerThread(threading.Thread):
                 except:
                     pass
                 last_check = now
-			"""
+            """
             time.sleep(1)
         logging.info("thread instance-manager: exit")
  
