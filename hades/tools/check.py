@@ -3,7 +3,7 @@ import sys
 import json
 import cPickle
 
-STATUS_FILE = "/home/bae/run/baeng/hades/status/instance.status"
+STATUS_FILE = os.environ["RUN_DIR"] + "/status/instance.status"
 
 import logging
 import subprocess
@@ -58,7 +58,7 @@ for x in result:
 
 ## container directory
 print ">>>check container directory"
-cmd = "cd %s/containers && ls -1" % os.environ['DOCKER_ROOT_DIR']
+cmd = "cd %s/containers && ls -1" % os.environ['DOCKER_DIR']
 ret, output = run_cmd(cmd, True)
 container_dirs = output.strip().split('\n')
 for xid in container_dirs:

@@ -13,7 +13,7 @@ import util
 import global_context
 
 DO_SCRIPT = os.environ["AGENT_DIR"] + "/docker/do.sh"
-RUNTIME_STATUS_FILE = os.environ["STATUS_DIR"] + "/runtime.status"
+RUNTIME_STATUS_FILE = os.environ["RUN_DIR"] + "/status/runtime.status"
 
 def max_instance_count():
     cmd = "%s max_instance_count" % (DO_SCRIPT)
@@ -186,7 +186,7 @@ class HadesModule(object):
         info.append("arg_app_uri='%s'\n"   % app_uri)
         info_str = "".join(info)
 
-        info_filename = "%s/%s.info" % (os.environ['WORK_DIR'], instance_name)
+        info_filename = "%s/work/%s.info" % (os.environ['RUN_DIR'], instance_name)
         with open(info_filename, "w") as fd:
             fd.write(info_str)
 

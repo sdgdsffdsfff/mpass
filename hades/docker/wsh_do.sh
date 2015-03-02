@@ -130,7 +130,7 @@ function runtime_install()
         [ ! -f $image_file ] && { error_exit 2 "$image_file not exist"; }
     elif [ "$proto" = "http" ]; then
         local now=$(date +%Y%m%d-%H%M%S)
-        image_file=$WORK_DIR/${runtime_type}.${now}
+        image_file=$RUN_DIR/work/${runtime_type}.${now}
         log "wget -q $image_location -O $image_file"
         wget -q $image_location -O $image_file 
         [ $? -ne 0 ] && { error_exit 2 "download $image_location failed"; }
@@ -278,7 +278,7 @@ function instance_create()
         rm -rf $log_dir
         error_exit 104 "missing container long id"
     }
-    local container_dir=$DOCKER_ROOT_DIR/containers/$long_id
+    local container_dir=$DOCKER_DIR/containers/$long_id
     [ ! -d $container_dir ] && { 
         docker stop  $container_id >> $LOGFILE 2>&1
         docker wait $container_id >> $LOGFILE 2>&1
@@ -474,10 +474,10 @@ function instance_delete()
         }
     }
 
-    [ -d $DOCKER_ROOT_DIR/containers/${container_id}* ] && { 
+    [ -d $DOCKER_DIR/containers/${container_id}* ] && { 
         log "remove container dir"
-        umount $DOCKER_ROOT_DIR/containers/${container_id}*/rootfs
-        rm -rf $DOCKER_ROOT_DIR/containers/${container_id}*
+        umount $DOCKER_DIR/containers/${container_id}*/rootfs
+        rm -rf $DOCKER_DIR/containers/${container_id}*
         [ $? -ne 0 ] && {
             log "remove container dir failed"
         }

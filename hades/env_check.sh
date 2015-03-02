@@ -22,8 +22,8 @@ ps auxf |grep "docker" |grep -v "grep" >/dev/null
     exit 1
 }
 
-[ ! -d $DOCKER_ROOT_DIR ] && {
-    echo "missing docker $DOCKER_ROOT_DIR"
+[ ! -d $DOCKER_DIR ] && {
+    echo "missing docker $DOCKER_DIR"
     exit 1
 }
 

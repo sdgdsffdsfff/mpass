@@ -5,8 +5,8 @@ import time
 import cPickle
 import json
 
-STATUS_FILE = "%s/instance.status" % os.environ['STATUS_DIR']
-JSON_FILE = "%s/instance.json" % os.environ['STATUS_DIR']
+STATUS_FILE = "%s/status/instance.status" % os.environ['RUN_DIR']
+JSON_FILE = "%s/status/instance.json" % os.environ['RUN_DIR']
 
 class InstanceManager():
     def __init__(self, resource):

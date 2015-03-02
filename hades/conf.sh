@@ -5,15 +5,14 @@ PYTHON_BIN=python2.6
 
 export AGENT_DIR=/letv/mpass/$AGENT_NAME
 export LOG_DIR=/letv/logs/mpass/$AGENT_NAME
-export WORK_DIR=/letv/run/mpass/$AGENT_NAME/work
-export STATUS_DIR=/letv/run/mpass/$AGENT_NAME/status
-export DOCKER_DIR=/srv/docker
+export RUN_DIR=/letv/run/mpass/$AGENT_NAME
 
 export LOG_FILE=$LOG_DIR/agent.log
 export LOCK_FILE=/letv/run/mpass/$AGENT_NAME/hades.lock
 export LOG_TYPE="file"
 
-export THIS_HOST=10.154.156.122
+#export THIS_HOST=10.154.156.122
+export THIS_HOST=$(grep IPADDR /etc/sysconfig/network-scripts/ifcfg-eth0 | awk 'BEGIN{FS="="} {print $2}')
 export DOCKER0_IP=$(/sbin/ifconfig docker0 | grep "inet addr" | awk '{print $2}' | sed 's/addr://g')
 
 ## running mode: rdtest, qatest, product

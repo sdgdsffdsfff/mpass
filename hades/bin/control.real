@@ -4,17 +4,17 @@ THIS_DIR=$(dirname $(readlink -f $0))
 source $THIS_DIR/../conf.sh
 
 ### setup environment
-mkdir -p $WORK_DIR
-mkdir -p $STATUS_DIR
+mkdir -p $RUN_DIR/work
+mkdir -p $RUN_DIR/status
 mkdir -p $LOG_DIR
 
 mkdir -p /tmp/share/instances
 mkdir -p /tmp/share/logs
 
-[ ! -f $STATUS_DIR/.installed ] && {
+[ ! -f $RUN_DIR/status/.installed ] && {
 ### first install
     ln -sf $AGENT_DIR/docker/wsh /usr/local/bin/wsh
-    touch -f $STATUS_DIR/.installed
+    touch -f $RUN_DIR/status/.installed
 }
 
 _start()

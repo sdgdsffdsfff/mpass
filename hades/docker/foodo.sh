@@ -51,7 +51,7 @@ function _get_app()
         [ $? -ne 0 ] && { return 1; }
     elif [ "$proto" = "http" ]; then
         local now=$(date +%Y%m%d-%H%M%S)
-        local tmpfile=$WORK_DIR/${now}.tgz
+        local tmpfile=$RUN_DIR/work/${now}.tgz
         wget -q $app_uri -O $image_file >> $logfile 2>&1 
         [ $? -ne 0 ] && { return 2; }
         tar xzf $tmpfile -C $targe_dir/ >> $logfile 2>&1

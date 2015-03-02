@@ -2,7 +2,7 @@ container_id=$1
 uid=$2
 
 source /home/bae/baeng/hades/conf.sh
-XDIR=$DOCKER_ROOT_DIR/containers
+XDIR=$DOCKER_DIR/containers
 
 [ ${#container_id} -lt 12 ] && { echo "length of container id must >= 12"; exit 1; }
 [ ${#container_id} -gt 12 ] && { container_id=$(echo $container_id |cut -c 1-12 ); }

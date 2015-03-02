@@ -11,9 +11,9 @@ export SCHEDULER_EXCHANGE_NAME="command.exchange"
 export SCHEDULER_HEARTBEAT_QUEUE="heartbeat.queue"
 export THIS_AGENT_NAME="hades@$THIS_HOST"
 
-export DOCKER_ROOT_DIR="/srv/docker"
+export DOCKER_DIR=/letv/docker
 export DOCKER_MAX_INSTANCE_COUNT=10
 
-export CONTAINER_DISK="/srv"
+export CONTAINER_DISK=/letv
 export CONTAINER_DNS_SERVERS="10.50.140.13 10.50.144.14"
 
