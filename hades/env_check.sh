@@ -21,7 +21,6 @@ ps auxf |grep "docker" |grep -v "grep" >/dev/null
     echo "invalid host ip"
     exit 1
 }
-echo "lala"
 
 [ ! -d $DOCKER_ROOT_DIR ] && {
     echo "missing docker $DOCKER_ROOT_DIR"
@@ -33,7 +32,6 @@ echo "lala"
     exit 1
 }
 
-echo "lala"
 for dir in cpu cpuset memory blkio
 do 
     [ ! -d "/cgroup/$dir" ] && {
@@ -51,8 +49,6 @@ do
         exit 1
     }
 done
-
-echo "lala"
 
 exit 0
 
