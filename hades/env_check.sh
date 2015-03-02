@@ -27,9 +27,9 @@ ps auxf |grep "docker" |grep -v "grep" >/dev/null
     exit 1
 }
 
-[ ! -L /usr/local/bin/wsh ] && {
-    echo "missing wsh"
-    exit 1
+[ ! -L /usr/local/bin/nsenter ] && {
+	cp -f tools/nsenter /usr/local/bin/
+	cp -f tools/docker-enter.sh /usr/local/bin/
 }
 
 for dir in cpu cpuset memory blkio
