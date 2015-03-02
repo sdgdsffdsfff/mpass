@@ -5,10 +5,6 @@
 BASE_DIR=/letv/mpass/hades
 source $BASE_DIR/conf.sh
 
-SHARE_ROOT=/tmp/hades/share
-INSTANCE_ROOT=$SHARE_ROOT/instances
-LOG_ROOT=$SHARE_ROOT/logs
-
 CONTAINER_ROOT=/letv
 
 TO_DOCKER_RUN=120
@@ -20,7 +16,7 @@ TO_WSH600=600
 WSH=$BASE_DIR/docker/wsh
 WSHD=$BASE_DIR/docker/wshd
 
-LOGFILE=/tmp/hades/do.log
+LOGFILE=$LOG_DIR/do.log
 
 exec 2>>$LOGFILE
 
@@ -90,22 +86,21 @@ function instance_create()
     local instance_dir=$INSTANCE_ROOT/$instance_name
     mkdir -p $instance_dir
     rm -rf $instance_dir/*
+	
+	chown 777 $instance_dir
+	mkdir -p $instance_dir/{code,logs}
 
-    local log_dir=$LOG_ROOT/$instance_name
-    mkdir -p $log_dir
-    rm -rf $log_dir/*
- 
     local port_maps=""
     [ "$arg_port" != "0" ] && port_maps="-p $arg_port"
 
-    _get_app $arg_app_uri $instance_dir $LOGFILE || {
+    _get_app $arg_app_uri $instance_dir/code $LOGFILE || {
         error_exit 107 "get app code from $arg_app_uri failed";
     }
 
     local hostname="$arg_appid"
-	local runcmd="$CONTAINER_ROOT/app/run.sh"; 
-   	[ -e $instance_dir/app/run.sh ] && { 
-		chmod +x $instance_dir/app/run.sh;
+	local runcmd="$CONTAINER_ROOT/code/run.sh"; 
+   	[ -e $instance_dir/code/run.sh ] && { 
+		chmod +x $instance_dir/code/run.sh;
 	} || {
 		runcmd="";
 	}
@@ -113,8 +108,7 @@ function instance_create()
 	log "docker run \
         --name "${arg_appid}_$instance_name" \
         -d \
-        -v $instance_dir/app:$CONTAINER_ROOT/app \
-        -v $log_dir:$CONTAINER_ROOT/logs \
+        -v $instance_dir:$CONTAINER_ROOT \
         -h $hostname \
         $port_maps \
         $arg_imgid $runcmd"
@@ -122,28 +116,24 @@ function instance_create()
     local container_id=$(docker run \
         --name "${arg_appid}_$instance_name" \
         -d \
-        -v $instance_dir/app:$CONTAINER_ROOT/app \
-        -v $log_dir:$CONTAINER_ROOT/logs \
+        -v $instance_dir:$CONTAINER_ROOT \
         -h $hostname \
         $port_maps \
         $arg_imgid $runcmd)
 
     [ $? -ne 0 ] && { 
         rm -rf $instance_dir
-        rm -rf $log_dir
         error_exit 101 "create container";
     }
     log "container_id: ($container_id)"
     [ "$container_id" == "" ] && {
-        #rm -rf $instance_dir
-        #rm -rf $log_dir
+        rm -rf $instance_dir
         error_exit 102 "invalid container id"
     }
     docker inspect -f '{{.State.Running}}' $container_id |grep true >> $LOGFILE 2>&1
     [ $? -ne 0 ] && {
         docker rm $container_id >> $LOGFILE 2>&1
         rm -rf $instance_dir
-        rm -rf $log_dir
         error_exit 103 "container not in running state"
     }
     local container_dir=$DOCKER_DIR/containers/$container_id
@@ -152,7 +142,6 @@ function instance_create()
         docker wait $container_id >> $LOGFILE 2>&1
         docker rm $container_id >> $LOGFILE 2>&1
         rm -rf $instance_dir
-        rm -rf $log_dir
         error_exit 105 "missing container directory"; 
     }
     local container_ip=$(docker inspect -f '{{.NetworkSettings.IPAddress}}' $container_id)
@@ -161,7 +150,6 @@ function instance_create()
         docker wait $container_id >> $LOGFILE 2>&1
         docker rm $container_id >> $LOGFILE 2>&1
         rm -rf $instance_dir
-        rm -rf $log_dir
         error_exit 106 "no container IP";
     }
 
@@ -182,7 +170,6 @@ function instance_delete()
     LOGFILE=$LOG_DIR/${instance_name}.log
 
     local instance_dir=$INSTANCE_ROOT/$instance_name
-    local log_dir=$LOG_ROOT/$instance_name
 
     log ">>> instance_delete begin: $container_id $container_ip $uid"
     local old_mem_size=$(lxc-cgroup -n $container_id memory.limit_in_bytes 2>/dev/null)
@@ -239,7 +226,6 @@ function instance_delete()
     }
     
     rm -rf $instance_dir
-    rm -rf $log_dir
     log ">>> instance_delete end: $container_id $container_ip"
 }
 

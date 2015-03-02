@@ -8,8 +8,7 @@ mkdir -p $RUN_DIR/work
 mkdir -p $RUN_DIR/status
 mkdir -p $LOG_DIR
 
-mkdir -p /tmp/share/instances
-mkdir -p /tmp/share/logs
+mkdir -p $INSTANCES_ROOT
 
 [ ! -f $RUN_DIR/status/.installed ] && {
 ### first install
