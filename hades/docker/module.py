@@ -96,6 +96,7 @@ class InstanceManagerThread(threading.Thread):
         while self.running:
             self.im.save_to_disk()
             now = time.time()
+			"""
             if now - last_check >= 15:
                 r = self.__instances_check()
                 heart_beat_msg['logid'] = '111111111111111' 
@@ -108,6 +109,7 @@ class InstanceManagerThread(threading.Thread):
                 except:
                     pass
                 last_check = now
+			"""
             time.sleep(1)
         logging.info("thread instance-manager: exit")
  
@@ -129,8 +131,8 @@ class HadesModule(object):
         disk = 1024
         bandwidth = 100000
         self.im = InstanceManager({"mem":mem, "disk":disk, "bandwidth":bandwidth})
-        #self.im_thread = InstanceManagerThread(None, self.im)
-        #self.im_thread.start()
+        self.im_thread = InstanceManagerThread(None, self.im)
+        self.im_thread.start()
 
         import handler_manager
         _handlers = {
@@ -143,9 +145,8 @@ class HadesModule(object):
         return True
 
     def fini(self):
-        return True
-        #self.im_thread.quit()
-        #self.im_thread.wait()
+        self.im_thread.quit()
+        self.im_thread.wait()
 
     def do_instance_create(self, tid, msg):
         context = msg['context']

@@ -127,10 +127,9 @@ def instance_list(argv):
             print "container_id:  ", v['container_id']
             print "container_ip:  ", v['container_ip']
             print "appid:         ", v['appid'] if 'appid' in v else "NONE"
-            print "app_type:      ", v['app_type'] if 'app_type' in v else "NONE"
+            #print "app_type:      ", v['app_type'] if 'app_type' in v else "NONE"
             print "created:       ", v['created'] if 'created' in v else "NONE"
-            print "uid:           ", v['uid'] if 'uid' in v else "NONE"
-            print "longid:        ", v['longid'] if 'longid' in v else "NONE"
+            #print "uid:           ", v['uid'] if 'uid' in v else "NONE"
         except:
             pass
     print len(instances)
