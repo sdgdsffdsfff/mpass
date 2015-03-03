@@ -158,7 +158,7 @@ function instance_create()
         public_port=$(docker port $container_id $arg_port |awk -F ":" '{print $2}'); 
     }
     echo $container_id $container_ip $public_port
-    log ">>> instance_create end: $appid ($container_id $container_ip)"
+    log ">>> instance_create end: $appid ($container_id $container_ip ($public_port))"
 }
 
 function instance_delete()

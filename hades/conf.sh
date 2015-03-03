@@ -7,7 +7,7 @@ export AGENT_DIR=/letv/mpass/$AGENT_NAME
 export LOG_DIR=/letv/logs/mpass/$AGENT_NAME
 export RUN_DIR=/letv/run/mpass/$AGENT_NAME
 
-export INSTANCES_ROOT=/letv/instances
+export INSTANCE_ROOT=/letv/instances
 
 export LOG_FILE=$LOG_DIR/agent.log
 export LOCK_FILE=/letv/run/mpass/$AGENT_NAME/hades.lock
