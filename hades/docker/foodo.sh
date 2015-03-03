@@ -59,7 +59,7 @@ function _get_app()
 	    local retry=0
         while :
         do
-            log "rsync code from fileserver $file_server ($retry)"
+            log "rsync app from ($remote_path) ($target_dir/) ($retry)"
             rsync -aq --partial --delete -e 'ssh -o "StrictHostKeyChecking=no" ' $remote_path $target_dir/  >>$logfile 2>&1
             [ $? -eq 0 ] && { break; }
             retry=$(($retry+1))
@@ -87,13 +87,13 @@ function instance_create()
     mkdir -p $instance_dir
     rm -rf $instance_dir/*
 	
-	chown 777 $instance_dir
-	mkdir -p $instance_dir/{app,logs}
+    chown 777 $instance_dir
+    mkdir -p $instance_dir/{app,logs}
 
     local port_maps=""
     [ "$arg_port" != "0" ] && port_maps="-p $arg_port"
 
-    _get_app $arg_app_uri $instance_dir/app $LOGFILE || {
+    _get_app $arg_app_uri $instance_dir/app/ $LOGFILE || {
         error_exit 107 "get app from $arg_app_uri failed";
     }
 
