@@ -88,19 +88,19 @@ function instance_create()
     rm -rf $instance_dir/*
 	
 	chown 777 $instance_dir
-	mkdir -p $instance_dir/{code,logs}
+	mkdir -p $instance_dir/{app,logs}
 
     local port_maps=""
     [ "$arg_port" != "0" ] && port_maps="-p $arg_port"
 
-    _get_app $arg_app_uri $instance_dir/code $LOGFILE || {
-        error_exit 107 "get app code from $arg_app_uri failed";
+    _get_app $arg_app_uri $instance_dir/app $LOGFILE || {
+        error_exit 107 "get app from $arg_app_uri failed";
     }
 
     local hostname="$arg_appid"
-	local runcmd="$CONTAINER_ROOT/code/run.sh"; 
-   	[ -e $instance_dir/code/run.sh ] && { 
-		chmod +x $instance_dir/code/run.sh;
+	local runcmd="$CONTAINER_ROOT/app/run.sh"; 
+   	[ -e $instance_dir/app/run.sh ] && { 
+		chmod +x $instance_dir/app/run.sh;
 	} || {
 		runcmd="";
 	}
