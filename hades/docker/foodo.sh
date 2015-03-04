@@ -87,8 +87,8 @@ function instance_create()
     mkdir -p $instance_dir
     rm -rf $instance_dir/*
 	
-    chown 777 $instance_dir
     mkdir -p $instance_dir/{app,logs}
+    chmod 777 $instance_dir/logs
 
     local port_maps=""
     [ "$arg_port" != "0" ] && port_maps="-p $arg_port"
