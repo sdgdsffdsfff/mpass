@@ -92,9 +92,9 @@ location {{ path }} {
                 if ret != 0:
                     logging.warning("router_update failed: %d", ret)
                     result = 1
-            except Exception as e:
-                logging.warning("router_update exception: %s", e)
-                result = -1
+        except Exception as e:
+            logging.warning("router_update exception: %s", e)
+            result = -1
 
         reply_msg = {
             'cmd' : 'common_reply',
