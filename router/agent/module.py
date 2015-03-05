@@ -35,7 +35,7 @@ server {
         self.default_tpl = Template(template)
 
         template = """
-upstream {{ domain }} {
+upstream {{ path }} {
 {% for addr in addrs %}
     server {{ addr }};
 {% endfor %}
@@ -45,7 +45,7 @@ upstream {{ domain }} {
         self.upstream_tpl = Template(template)
         template = """
 location /{{ path }} {
-    proxy_pass http://{{ domain }};
+    proxy_pass http://{{ path }}/;
     proxy_set_header X-Real-IP $remote_addr;
     client_max_body_size 40m;
 }
