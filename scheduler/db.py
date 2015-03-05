@@ -19,16 +19,15 @@ class Database(object):
         with open("db.json", "w") as fd:
             json.dump(self.db, fd)
 
-    def appCreate(self, name, domain, path, svn, type, port):
+    def appCreate(self, name, context):
         apps = self.db["apps"]
         if name in apps:
             return None, "exits"
         apps[name] = {
-            "domain" : domain,
-            "path" : path,
-            "svn" : svn,
-            "type" : type,
-            "port" : port,
+            "domain" : context["domain"],
+            "path"   : context["path"],
+            "type"   : context["type"],
+            "port"   : context["port"],
             "status" : 0
         }
         instances = self.db["instances"]

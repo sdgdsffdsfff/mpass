@@ -102,8 +102,7 @@ node_list = {
     "online" : ["10.176.28.138", "10.176.28.139"], 
     "sandbox" : ["10.176.28.138"]
 }
-router_list = ["10.154.156.122"]
-#router_list = ["10.154.28.127", "10.154.28.128", "10.154.28.129", "10.154.28.130"]
+router_list = ["10.154.28.127", "10.154.28.128", "10.154.28.129", "10.154.28.130"]
 
 g_db = Database()
 
@@ -150,12 +149,8 @@ def app_create(argv):
         rpc = RPC()
         cmdinfo = json.load(fd)
         appinfo, err = g_db.appCreate(
-            cmdinfo["name"], 
-            cmdinfo["domain"], 
-            cmdinfo.get("path", ""), 
-            cmdinfo["svn"], 
-            cmdinfo["type"],
-            cmdinfo["port"])
+            cmdinfo["name"],
+            cmdinfo)
         if err != None:
             print "app_create Failed: %s" % err
         else:
@@ -240,8 +235,8 @@ def app_deploy(argv):
             print "app_destroy Failed: no such app"
             return
 
-        print ">>> get code from svn"
-        cmd = "%s/do.sh get_code %s %s" % (os.environ["AGENT_DIR"], appname, appinfo["svn"])
+        print ">>> get code from svn %s" % (cmdinfo["svn"])
+        cmd = "%s/do.sh get_code %s %s" % (os.environ["AGENT_DIR"], appname, cmdinfo["svn"])
         ret, _ = util.run_cmd(cmd, out=False)
         if ret != 0:
             print "get code failed"
