@@ -130,6 +130,7 @@ function instance_create()
         rm -rf $instance_dir
         error_exit 102 "invalid container id"
     }
+	sleep 4
     docker inspect -f '{{.State.Running}}' $container_id |grep true >> $LOGFILE 2>&1
     [ $? -ne 0 ] && {
         docker rm $container_id >> $LOGFILE 2>&1
@@ -156,6 +157,13 @@ function instance_create()
     local public_port="0"
     [ "$arg_port" != "0" ] && { 
         public_port=$(docker port $container_id $arg_port |awk -F ":" '{print $2}'); 
+		[ "$public_port" = "" ] && {
+	        docker stop  $container_id >> $LOGFILE 2>&1
+		    docker wait $container_id >> $LOGFILE 2>&1
+			docker rm $container_id >> $LOGFILE 2>&1
+	        rm -rf $instance_dir
+		    error_exit 107 "missing public port";
+		}
     }
     echo $container_id $container_ip $public_port
     log ">>> instance_create end: $appid ($container_id $container_ip ($public_port))"
