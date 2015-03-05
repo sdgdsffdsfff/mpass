@@ -26,7 +26,7 @@ upstream {{ domain }} {
 server {
     server_name {{ domain }};
     location / {
-        proxy_pass http://{{ domain }};
+        proxy_pass http://{{ domain }}/;
         proxy_set_header X-Real-IP $remote_addr;
 		client_max_body_size 40m;
     }
