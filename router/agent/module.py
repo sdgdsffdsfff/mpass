@@ -12,6 +12,8 @@ import util
 import global_context
 from jinja2 import Template
 
+NGINX_DIR = "/letv/nginx"
+
 class Agent(object):
     def __init__(self):
         template = """
@@ -26,8 +28,10 @@ server {
     location / {
         proxy_pass http://{{ domain }};
         proxy_set_header X-Real-IP $remote_addr;
+		client_max_body_size 40m;
     }
-}"""
+}
+"""
         self.default_tpl = Template(template)
 
         template = """
@@ -36,13 +40,16 @@ upstream {{ domain }} {
     server {{ addr }};
 {% endfor %}
 }
+
 """
         self.upstream_tpl = Template(template)
         template = """
-location {{ path }} {
+location /{{ path }} {
     proxy_pass http://{{ domain }};
     proxy_set_header X-Real-IP $remote_addr;
+    client_max_body_size 40m;
 }
+
 """
         self.location_tpl = Template(template)
         pass
@@ -73,25 +80,26 @@ location {{ path }} {
         try:
             if path != "":
                 strconf = self.upstream_tpl.render(dict)
-                filename = "/letv/nginx/conf.d/%s/upstream-%s.conf" % (domain, path)
+                filename = "%s/conf.d/%s/upstream-%s.conf" % (NGINX_DIR, domain, path)
                 with open(filename, "w") as fd:
                     fd.write(strconf)
 
                 strconf = self.location_tpl.render(dict)
-                filename = "/letv/nginx/conf.d/%s/location-%s.conf" % (domain, path)
+                filename = "%s/conf.d/%s/location-%s.conf" % (NGINX_DIR, domain, path)
                 with open(filename, "w") as fd:
                     fd.write(strconf)
 
             else:
                 strconf = self.default_tpl.render(dict)
-                filename = "/letv/nginx/conf.d/%s.conf" % domain
+                filename = "%s/conf.d/%s.conf" % (NGINX_DIR, domain)
                 with open(filename, "w") as fd:
                     fd.write(strconf)
-                cmd = "/letv/nginx/nginx reload"
-                ret, _ = util.run_cmd(cmd, out=False)
-                if ret != 0:
-                    logging.warning("router_update failed: %d", ret)
-                    result = 1
+
+            cmd = "%s/nginx reload" % (NGINX_DIR)
+            ret, _ = util.run_cmd(cmd, out=False)
+            if ret != 0:
+                logging.warning("router_update failed: %d", ret)
+                result = 1
         except Exception as e:
             logging.warning("router_update exception: %s", e)
             result = -1
@@ -112,12 +120,12 @@ location {{ path }} {
         result = 0
         try:
             if path != "":
-                file1 = "/letv/nginx/conf.d/%s/upstream-%s.conf" % (domain, path)
-                file2 = "/letv/nginx/conf.d/%s/location-%s.conf" % (domain, path)
-                cmd = "rm -f %s && rm -f %s && /letv/nginx/nginx reload" % (file1, file2)
+                file1 = "%s/conf.d/%s/upstream-%s.conf" % (NGINX_DIR, domain, path)
+                file2 = "%s/conf.d/%s/location-%s.conf" % (NGINX_DIR, domain, path)
+                cmd = "rm -f %s && rm -f %s && %s/nginx reload" % (file1, file2, NGINX_DIR)
             else:
-                filename = "/letv/nginx/conf.d/%s.conf" % domain
-                cmd = "rm -f %s && /letv/nginx/nginx reload" % filename
+                filename = "%s/conf.d/%s.conf" % (NGINX_DIR, domain)
+                cmd = "rm -f %s && %s/nginx reload" % (filename, NGINX_DIR)
             ret, _ = util.run_cmd(cmd, out=False)
             if ret != 0:
                 logging.warning("router_remove failed: %d", ret)

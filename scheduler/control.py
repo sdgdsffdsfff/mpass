@@ -97,8 +97,13 @@ class RPC(object):
         return response
 
 #node_list = ["10.154.156.122", "10.154.156.122"]
-node_list = ["10.135.28.140", "10.135.28.141"]
-router_list = ["10.154.28.127"]
+#node_list = ["10.176.28.138", "10.176.28.137", "10.176.28.139", "10.176.28.140"]
+node_list = {
+    "online" : ["10.176.28.138", "10.176.28.139"], 
+    "sandbox" : ["10.176.28.138"]
+}
+router_list = ["10.154.156.122"]
+#router_list = ["10.154.28.127", "10.154.28.128", "10.154.28.129", "10.154.28.130"]
 
 g_db = Database()
 
@@ -108,9 +113,10 @@ def _router_update(router, context):
         "logid" : "testlogid",
         "cmd" : "router_update", 
         "context" : {
-            "taskid"        : 1000,
+            "taskid" : 1000,
             "domain" : context["domain"],
-            "addrs" : context["addrs"]
+            "path"   : context["path"],
+            "addrs"  : context["addrs"]
         } 
     }
     response = json.loads(rpc.call("router@%s"%router, json.dumps(cmd)))
@@ -127,7 +133,8 @@ def _router_remove(router, context):
         "cmd" : "router_remove", 
         "context" : {
             "taskid" : 1000,
-            "domain" : context["domain"]
+            "domain" : context["domain"],
+            "path"   : context["path"]
         } 
     }
     response = json.loads(rpc.call("router@%s"%router, json.dumps(cmd)))
@@ -145,6 +152,7 @@ def app_create(argv):
         appinfo, err = g_db.appCreate(
             cmdinfo["name"], 
             cmdinfo["domain"], 
+            cmdinfo.get("path", ""), 
             cmdinfo["svn"], 
             cmdinfo["type"],
             cmdinfo["port"])
@@ -185,7 +193,8 @@ def app_destroy(argv):
         print ">>> remove app info from DB"
         g_db.appDestroy(cmdinfo["name"])
         context = {
-            "domain" : appinfo["domain"]
+            "domain" : appinfo["domain"],
+            "path"   : appinfo.get("path", "")
         }
         if appinfo["type"] == "WEB":
             for router in router_list:
@@ -209,14 +218,19 @@ def app_status(argv):
             print val
         print "===================================="
 
-def _node_get():
-    return random.choice(node_list)
+def _node_get(group):
+    return random.choice(node_list[group])
 
 def _get_suffix():
     return ''.join(random.sample('abcdefghijklmnopqrstuvwxyz0123456789', 10))
 
 def app_deploy(argv):
-    infofile = argv[0]
+    group = argv[0]
+    infofile = argv[1]
+    if group not in node_list:
+        print "no such group %s" % group
+        return
+
     with open(infofile) as fd:
         rpc = RPC()
         cmdinfo = json.load(fd)
@@ -233,11 +247,16 @@ def app_deploy(argv):
             print "get code failed"
             return
 
-        appuri = "rsync://root@10.154.156.122:/letv/run/mpass/scheduler/%s/app" % appname
+        appuri = "rsync://root@10.154.156.122:/letv/run/mpass/scheduler/%s/app/" % appname
         instance_num = cmdinfo["instance_num"]
+
+        old_instances = g_db.instanceGet(appname)
         new_instances = []
+
+        print ">>> create new instances"
+        ok = True
         for n in range(instance_num):
-            node = _node_get()
+            node = _node_get(group)
             suffix = _get_suffix()
             instance = "instance_%s" % suffix
             port = "0"
@@ -255,21 +274,67 @@ def app_deploy(argv):
                     "app_uri"       : appuri 
                 } 
             }
-            print ">>> create new instance %s" % instance
+            print "create new instance %s" % instance
             response = json.loads(rpc.call("hades@%s"%node, json.dumps(cmd)))
             result = response["context"]["result"]
             if result != 0:
                 print "instance_create %s FAILED" % instance
-                return
+                ok = False
+                break
             new_instances.append(
                 {
                     "instance" : instance,
                     "node" : node,
                     "vip"  : response["context"]["container_ip"],
-                    "port" : response["context"]["public_port"]
+                    "port" : response["context"]["public_port"],
+                    "group" : group
                 })
 
-        old_instances = g_db.instanceGet(appname)
+        if not ok:
+            print "remove new created instances"
+            for context in new_instances:
+                cmd = {
+                    "logid" : "testlogid",
+                    "cmd" : "instance_delete", 
+                    "context" : {
+                        "taskid"        : 1000,
+                        "instance_name" : context["instance"],
+                    } 
+                }
+                response = json.loads(rpc.call("hades@%s"%context["node"], json.dumps(cmd)))
+                result = response["context"]["result"]
+                if result != 0:
+                    print "instance_delete %s FAILED" % context["instance"] 
+                else:
+                    print "instance_delete %s OK" % context["instance"]
+            return
+
+        addrs = []
+        print ">>> update info into DB"
+        for context in new_instances:
+            g_db.instanceCreate(appname, context)
+            addrs.append("%s:%s"%(context["node"], context["port"]))
+
+        ### update route tables
+        if appinfo["type"] == "WEB":
+            if len(addrs) > 0:
+                context = {
+                    "domain" : appinfo["domain"],
+                    "path"   : appinfo.get("path", ""),
+                    "addrs"  : addrs
+                }
+                for router in router_list:
+                    print ">>> update info into router"
+                    _router_update(router, context)
+            else:
+                context = {
+                    "domain" : appinfo["domain"],
+                }
+                for router in router_list:
+                    print ">>> update info into router"
+                    _router_remove(router, context)
+
+        print ">>> remove old instances"
         for key, val in old_instances.items():
             cmd = {
                 "logid" : "testlogid",
@@ -287,31 +352,6 @@ def app_deploy(argv):
             else:
                 print "instance_delete %s OK" % key 
             g_db.instanceDestroy(appname, key)
-
-        addrs = []
-        print ">>> update info into DB"
-        for context in new_instances:
-            g_db.instanceCreate(appname, context)
-            addrs.append("%s:%s"%(context["node"], context["port"]))
-
-        if appinfo["type"] != "WEB":
-            return
-
-        if len(addrs) > 0:
-            context = {
-                "domain" : appinfo["domain"],
-                "addrs" : addrs
-            }
-            for router in router_list:
-                print ">>> update info into router"
-                _router_update(router, context)
-        else:
-            context = {
-                "domain" : appinfo["domain"],
-            }
-            for router in router_list:
-                print ">>> update info into router"
-                _router_remove(router, context)
 
 funcs = {
     "app_create"  : app_create,

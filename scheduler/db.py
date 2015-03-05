@@ -1,4 +1,5 @@
 import json
+import copy
 
 class Database(object):
     def __init__(self):
@@ -18,12 +19,13 @@ class Database(object):
         with open("db.json", "w") as fd:
             json.dump(self.db, fd)
 
-    def appCreate(self, name, domain, svn, type, port):
+    def appCreate(self, name, domain, path, svn, type, port):
         apps = self.db["apps"]
         if name in apps:
             return None, "exits"
         apps[name] = {
             "domain" : domain,
+            "path" : path,
             "svn" : svn,
             "type" : type,
             "port" : port,
@@ -48,7 +50,7 @@ class Database(object):
         
     def appGet(self, name):
         apps = self.db["apps"]
-        return apps.get(name, None)
+        return copy.deepcopy(apps.get(name, None))
 
     def instanceCreate(self, name, context):
         instances = self.db["instances"]
@@ -56,7 +58,8 @@ class Database(object):
             "status" : "running",
             "node" : context["node"],
             "vip" :  context["vip"],
-            "port" : context["port"]
+            "port" : context["port"],
+            "group" : context["group"]
         }
         self._sync()
         return True
@@ -68,5 +71,5 @@ class Database(object):
 
     def instanceGet(self, name):
         instances = self.db["instances"]
-        return instances.get(name, {})
+        return copy.deepcopy(instances.get(name, {}))
 
